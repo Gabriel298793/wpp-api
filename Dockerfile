@@ -1,0 +1,20 @@
+FROM node:20-alpine
+
+RUN apk add --no-cache \
+    python3 \
+    make \
+    g++ \
+    git
+
+WORKDIR /app
+
+COPY package.json ./
+RUN npm install --omit=dev
+
+COPY src/ ./src/
+
+RUN mkdir -p sessions
+
+EXPOSE 3333
+
+CMD ["node", "src/index.js"]
