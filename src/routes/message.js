@@ -4,11 +4,8 @@ import { getInstance } from '../instances.js'
 const router = Router()
 
 function formatNumber(number) {
-  // Remove tudo que não for dígito
-  const digits = number.replace(/\D/g, '')
-  // Garante que termina em @s.whatsapp.net
-  if (digits.includes('@')) return digits
-  return `${digits}@s.whatsapp.net`
+  if (number.includes('@')) return number
+  return `${number.replace(/\D/g, '')}@s.whatsapp.net`
 }
 
 function getSocket(instance, res) {
@@ -34,7 +31,11 @@ router.post('/sendText/:instance', async (req, res) => {
 
   try {
     const jid = formatNumber(number)
-    const result = await sock.sendMessage(jid, {
+
+    const [exists] = await sock.onWhatsApp(jid).catch(() => [null])
+    const resolvedJid = exists?.jid || jid
+
+    const result = await sock.sendMessage(resolvedJid, {
       text: textMessage?.text || req.body.text || '',
     })
 
