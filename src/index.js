@@ -1,13 +1,20 @@
 import 'dotenv/config'
 import express from 'express'
+import { fileURLToPath } from 'url'
+import { dirname, join } from 'path'
 import instanceRoutes from './routes/instance.js'
 import messageRoutes from './routes/message.js'
 import { loadPersistedSessions } from './instances.js'
+
+const __dirname = dirname(fileURLToPath(import.meta.url))
 
 const app = express()
 
 app.use(express.json({ limit: '50mb' }))
 app.use(express.urlencoded({ extended: true, limit: '50mb' }))
+
+// Dashboard — sem autenticação
+app.use(express.static(join(__dirname, '../public')))
 
 // API Key auth
 app.use((req, res, next) => {
@@ -19,7 +26,7 @@ app.use((req, res, next) => {
   next()
 })
 
-app.get('/', (req, res) => {
+app.get('/api/status', (req, res) => {
   res.json({ status: 'ok', version: '1.0.0', service: 'WPP API' })
 })
 
