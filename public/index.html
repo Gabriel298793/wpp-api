@@ -225,8 +225,15 @@
     async function connect() {
       const name = instance()
       stopPoll()
-      setStatus('qr', 'Criando instância...')
+      setStatus('qr', 'Reiniciando instância...')
       document.getElementById('btnConnect').disabled = true
+
+      // Garante estado limpo antes de criar
+      try {
+        await fetch(`/instance/delete/${name}`, { method: 'DELETE', headers: h() })
+      } catch (_) {}
+
+      await new Promise(r => setTimeout(r, 1000))
 
       try {
         await fetch('/instance/create', {
